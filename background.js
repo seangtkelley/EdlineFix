@@ -192,6 +192,9 @@ if (!localStorage.frequency) {
 if (!localStorage.timeOut) {
   localStorage.timeOut = true;
 }
+if (!localStorage.handleErr) {
+  localStorage.handleErr = true;
+}
 
 
 // wait for variables to set, then run code
@@ -327,7 +330,9 @@ setTimeout(function() {
 			} catch(e){
                                 console.log("CAUGHT ERROR: " + e.message)
                                 
-				sendErrorEmail(e);
+				if(JSON.parse(localStorage.handleErr)){
+					sendErrorEmail(e);
+				}
 			}
 		}, 1000); // run test every second
 	} else {
