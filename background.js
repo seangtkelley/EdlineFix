@@ -28,7 +28,7 @@ if (window.webkitNotifications) {
   var secondsPast = 0;
   var loggedIn = false;
   var urlCache = "";
-  var edlineTab;
+  var edlineTab = null;
   
   var overTime = 60;
   var warnings = 5;
@@ -42,15 +42,23 @@ if (window.webkitNotifications) {
 	}
 	
 	// find tab for edline
-	chrome.tabs.query({}, function(queryTabs) {
+	/*chrome.tabs.query({}, function(queryTabs) {
 		if(queryTabs != undefined && queryTabs != null){
 			for (var i = 0; i < queryTabs.length; i++) {
 				if(queryTabs[i].url.indexOf("edline") != -1){
 					edlineTab = queryTabs[i];
+					//tabCache2++;
 				}
 			}
 		}
+	});*/
+	chrome.tabs.query({"url": "*://*.edline.net/*"}, function(queryTabs) {
+		if(queryTabs != undefined){
+					edlineTab = queryTabs[0];
+		}
 	});
+	
+	
   
 	// if edline log on cookie exists, user is logged on 
 	getCookies("http://www.edline.net", "XT", function(cookie) {
@@ -61,11 +69,16 @@ if (window.webkitNotifications) {
 		}
 	});
 	
-	// check user's log on status
-	if(!loggedIn){
+	// make sure edline tab exists
+	if(edlineTab == null && loggedIn){
+		// tab was closed without log out
+		chrome.cookies.remove({"url": "http://www.edline.net", "name": "XT"});
+		console.log("LOGGED OUT GLITCH");
+	} else if(!loggedIn){
 		// if user not logged in, ignore rest of code
 		secondsPast = 0;
 		urlCache = "";
+		console.log("NOT LOGGED IN");
 		return;
 	} else if(loggedIn){
 		// if user logged on, check timer
