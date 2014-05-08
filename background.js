@@ -11,51 +11,7 @@ function getCookies(domain, name, callback) {
 // handle the display of notifications
 var notifications = new Array();
 
-/* old webkit notifications implementation(for linux) 
-
-	**** rich notifications seem to be working on ubuntu
-	
-function displayNotificationLinux(type, timeLeft){
-	timeLeft = (typeof timeLeft === "undefined") ? 0 : timeLeft;
-	
-	if(type == "reload"){
-		var warning = window.webkitNotifications.createNotification(
-			'48.png',
-			"WARNING",
-			'Edline has been refreshed to save your session. You can disable this on the option page.'
-		);
-		warning.onclose = function() { 
-			// delete itself from notifications array (not added yet)
-		};
-		warning.show();
-		notifications.push(warning);
-	} else if(type == "time") {
-		var warning = window.webkitNotifications.createNotification(
-			'48.png',
-			"WARNING",
-			'Edline is going to log you off in: ' + timeLeft + ' minutes'
-		);
-		warning.onclose = function() { 
-			// delete itself from notifications array (not added yet)
-		};
-		warning.show();
-		notifications.push(warning);
-	}
-}
-
-function clearEdlineNotificationsLinux(){
-	if (typeof notifications !== 'undefined' && notifications.length > 0) {
-		for (var i = 0; i < notifications.length; i++) {
-			notifications[i].close()
-		}
-		notifications = new Array();
-		console.log("EXISTING NOTIFICATIONS CLEARED");
-	}
-}
-*/
-
 /* rich notifications (windows, mac, ubuntu) */
-
 // get permission level of rich notifications
 var permLevel = "";
 chrome.notifications.getPermissionLevel(function (level){
@@ -65,8 +21,8 @@ chrome.notifications.getPermissionLevel(function (level){
 function displayNotification(type, timeLeft){
 	timeLeft = (typeof timeLeft === "undefined") ? 0 : timeLeft;
 	if(type == "reload"){
-		var message = "Edline has been refreshed to save your session. You can disable this on the option page.";
-		var options = {"type": "basic", "iconUrl": "128.png", "title": "WARNING", "message": message, "buttons": [{"title": "Options"}]};
+		var message = "Edline has been refreshed to save your session. You can change this on the option page.";
+		var options = {"type": "basic", "iconUrl": "128.png", "title": "Edline Session", "message": message, "buttons": [{"title": "Options"}]};
 		chrome.notifications.create("", options, function (notificationId){
 			notifications.push(notificationId);
 		});
@@ -77,7 +33,13 @@ function displayNotification(type, timeLeft){
 		} else {
 			message = "Edline is going to log you off in: " + timeLeft + " minutes";
 		}
-		var options = {"type": "basic", "iconUrl": "128.png", "title": "WARNING", "message": message, "buttons": [{"title": "Options"}, {"title": "Reload Edline"}]};
+		var options = {"type": "basic", "iconUrl": "128.png", "title": "Edline Session", "message": message, "buttons": [{"title": "Options"}, {"title": "Reload Edline"}]};
+		chrome.notifications.create("", options, function (notificationId){
+			notifications.push(notificationId);
+		});
+	} else if(type == "start") {
+		var message = "Edline Fix is now protecting your session. You can change this on the option page.";;
+		var options = {"type": "basic", "iconUrl": "128.png", "title": "Edline Session", "message": message, "buttons": [{"title": "Options"}]};
 		chrome.notifications.create("", options, function (notificationId){
 			notifications.push(notificationId);
 		});
@@ -154,6 +116,7 @@ if (!localStorage.isInitialized) {
 }
 
 
+
 // wait for variables to set, then run code
 setTimeout(function() {
 	// Test for notification support.
@@ -164,6 +127,8 @@ setTimeout(function() {
 		var loggedIn = false;
 		var urlCache = "";
 		var edlineTab = null;
+		var loginCookie = null;
+		var cookieValueCache = 0;
 		  
 		var overTime = 60;
 		var warnings = 5;
@@ -188,8 +153,10 @@ setTimeout(function() {
 			getCookies("http://www.edline.net", "XT", function(cookie) {
 				if(cookie != undefined && cookie != null){
 					loggedIn = true;
+					loginCookie = cookie;
 				} else {
 					loggedIn = false;
+					loginCookie = null;
 				}
 			});
 			
@@ -211,6 +178,13 @@ setTimeout(function() {
 					urlCache = edlineTab.url;
 					secondsPast++;
 					
+					if(loginCookie.value != cookieValueCache){
+						displayNotification("start");
+						cookieValueCache = loginCookie.value;
+					} else {
+						cookieValueCache = loginCookie.value;
+					}
+					
 					console.log("START");
 				} else if (secondsPast > 0){
 					// if seconds have past, run checks on data
@@ -223,9 +197,6 @@ setTimeout(function() {
 						reloadBuffer = 0;
 						
 						console.log("DIFFERENT PAGE RESET");
-				
-						// rich notifications automatically disappear
-						// clearEdlineNotifications();
 					} else if (edlineTab.status == "loading"){
 						// if page is loading(new request by user), reset timer
 						secondsPast = 0;
@@ -235,9 +206,6 @@ setTimeout(function() {
 						reloadBuffer = 0;
 				
 						console.log("LOADING PAGE RESET");
-				
-						// rich notifications automatically disappear 
-						// clearEdlineNotifications();
 					} else {
 						// user is still idle
 						if(secondsPast > maxTime){
@@ -248,9 +216,6 @@ setTimeout(function() {
 								if(JSON.parse(localStorage.displayNot)){
 									displayNotification("reload");
 								}
-								
-								// old webkit notifications code
-								// displayNotification("reload");
 						
 								reloadBuffer = 1;
 								chrome.tabs.reload(edlineTab.id);
@@ -258,16 +223,13 @@ setTimeout(function() {
 								/* rich notification code */
 								displayNotification("time", warnings);
 						
-								// old webkit notifications code
-								// displayNotification("time", warnings);
-						
 								overTime = 0;
 								warnings -= 1;
-							} /*else if(overTime == 15) {
-								// clear notifications after 15 seconds
-								// rich notifications automatically disappear
-								//clearEdlineNotifications();
-							}*/
+							} else if(warnings == -1 && overTime == 5){
+								chrome.cookies.remove({"url": "http://www.edline.net", "name": "XT"});
+								console.log("USER TIMED OUT");
+								console.log("LOG IN COOKIE CLEARED");
+							}
 							overTime++;
 					
 							console.log("IDLE: NO TIME");
