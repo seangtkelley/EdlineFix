@@ -33,7 +33,7 @@ function reloadClick(){
 
 setTimeout(function() {
 
-	document.getElementById('reload').onclick = reloadClick();/*function (){
+	document.getElementById('reload').onclick = reloadClick;/*function (){
 		// reload all edline tabs
 		chrome.tabs.query({"url": "*://*.edline.net/*"}, function(queryTabs) {
 			if(queryTabs !== undefined){
