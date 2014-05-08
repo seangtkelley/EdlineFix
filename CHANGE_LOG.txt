@@ -1,0 +1,22 @@
+Version 1.0
+	- initial release
+
+Version 1.1 
+	- fixed bug where user would close Edline tab without logging out and the extension
+	would still think the user was logged in
+
+Version 1.2
+	- complete notification overhaul
+		- extension now uses rich notifications
+		- discontinued use of deprecated webkit notifications
+		- old webkit commented out
+	
+	- fixed notifications not disappearing and stacking on top of eachother
+
+	- change log created
+
+	- future addition ideas:
+		- utilization of button capability of rich notifications
+		- inhanced options for user
+		- make extension able to handle all open edline tabs instead of just one
+		- perhaps keep webkit notification code because rich notifications not available on linux

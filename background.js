@@ -1,3 +1,4 @@
+// better function for getting cookies
 function getCookies(domain, name, callback) {
     chrome.cookies.get({"url": domain, "name": name}, function(cookie) {
         if(callback) {
@@ -5,6 +6,94 @@ function getCookies(domain, name, callback) {
         }
     });
 }
+
+
+// handle the display of notifications
+var notifications = new Array();
+
+/* old webkit notifications implementation(not working)
+function displayNotification(type, timeLeft){
+	timeLeft = (typeof timeLeft === "undefined") ? 0 : timeLeft;
+	
+	if(type == "reload"){
+		var warning = window.webkitNotifications.createNotification(
+			'48.png',
+			"WARNING",
+			'Edline has been refreshed to save your session. You can disable this on the option page.'
+		);
+		warning.onclose = function() { 
+			// delete itself from notifications array (not added yet)
+		};
+		warning.show();
+		notifications.push(warning);
+	} else if(type == "time") {
+		var warning = window.webkitNotifications.createNotification(
+			'48.png',
+			"WARNING",
+			'Edline is going to log you off in: ' + timeLeft + ' minutes'
+		);
+		warning.onclose = function() { 
+			// delete itself from notifications array (not added yet)
+		};
+		warning.show();
+		notifications.push(warning);
+	}
+}
+
+function clearEdlineNotifications(){
+	if (typeof notifications !== 'undefined' && notifications.length > 0) {
+		for (var i = 0; i < notifications.length; i++) {
+			notifications[i].close()
+		}
+		notifications = new Array();
+		console.log("EXISTING NOTIFICATIONS CLEARED");
+	}
+}*/
+
+// rich notifications
+function displayNotification(options){
+	chrome.notifications.create("", options, function (notificationId){
+		notifications.push(notificationId);
+	});
+}
+
+function clearEdlineNotifications(){
+	if (typeof notifications !== 'undefined' && notifications.length > 0) {
+		for (var i = 0; i < notifications.length; i++) {
+			chrome.notifications.clear(notifications[i], function (wasCleared){
+				if(wasCleared){
+					console.log("NOTIFICATION " + notifications[i] + " CLEARED");
+				} else {
+					console.log("NOTIFICATION " + notifications[i] + " NOT CLEARED");
+				}
+			});
+		}
+	}
+}
+
+function clearAllNotifications(){
+	var allNotificationIDs = null;
+	chrome.notifications.getAll(function (IDS){
+		if(IDS != undefined && IDS != null){
+			allNotificationIDs = IDS;
+		}
+	});
+						
+	if(allNotificationIDs != null){
+		for (var i = 0; i < allNotificationIDs.length; i++) {
+			chrome.notifications.clear(allNotificationIDs[i].id, function (wasCleared){
+				if(wasCleared){
+					console.log("ALL EXISTING NOTIFICATIONS CLEARED");
+				} else {
+					console.log("ALL EXISTING NOTIFICATIONS NOT CLEARED");
+				}
+			});
+			console.log("ALL EXISTING NOTIFICATIONS NOT CLEARED");
+		}
+	}
+}
+
+
 
 // some time variables just in case
 var time = /(..)(:..)/.exec(new Date());     // The prettyprinted time.
@@ -99,6 +188,9 @@ if (window.webkitNotifications) {
 				reloadBuffer = 0;
 				
 				console.log("DIFFERENT PAGE RESET");
+				
+				// rich notifications automatically disappear
+				// clearEdlineNotifications();
 			} else if (edlineTab.status == "loading"){
 				// if page is loading(new request by user), reset timer
 				secondsPast = 0;
@@ -108,29 +200,38 @@ if (window.webkitNotifications) {
 				reloadBuffer = 0;
 				
 				console.log("LOADING PAGE RESET");
+				
+				// rich notifications automatically disappear 
+				// clearEdlineNotifications();
 			} else {
 				// user is still idle
 				if(secondsPast > maxTime){
 					// exceeded max time, alert user or refresh automatically
 					if(JSON.parse(localStorage.autoRefresh) && reloadBuffer != 1){
-						var warning = window.webkitNotifications.createNotification(
-							'48.png',                                        				 // The image.
-							"WARNING",                                        				 // The title.
-							'Edline has been refreshed to save your session. You can disable this on the option page.'    // The body.
-						);
-						warning.show();
+						/* rich notification code */
+						var message = "Edline has been refreshed to save your session. You can disable this on the option page.";
+						displayNotification({"type": "basic", "iconUrl": "48.png", "title": "WARNING", "message": message});
+						
+						// old webkit notifications code
+						// displayNotification("reload");
+						
 						reloadBuffer = 1;
 						chrome.tabs.reload(edlineTab.id);
 					} else if(overTime >= 60 && warnings >= 0 && reloadBuffer != 1){
-						var warning = window.webkitNotifications.createNotification(
-							'48.png',                                        				 // The image.
-							"WARNING",                                        				 // The title.
-							'Edline is going to log you off in: ' + warnings + ' minutes'    // The body.
-						);
-						warning.show();
+						/* rich notification code */
+						var message = "Edline is going to log you off in: " + warnings + " minutes";
+						displayNotification({"type": "basic", "iconUrl": "48.png", "title": "WARNING", "message": message});
+						
+						// old webkit notifications code
+						// displayNotification("time", warnings);
+						
 						overTime = 0;
 						warnings -= 1;
-					}
+					} /*else if(overTime == 15) {
+						// clear notifications after 15 seconds
+						// rich notifications automatically disappear
+						//clearEdlineNotifications();
+					}*/
 					overTime++;
 					
 					console.log("IDLE: NO TIME");
