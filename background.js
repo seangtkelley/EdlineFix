@@ -146,9 +146,11 @@ var period = time[1] < 12 ? 'a.m.' : 'p.m.'; // The period of the day.
 // Conditionally initialize the options.
 if (!localStorage.isInitialized) {
   localStorage.autoRefresh = false;
+  localStorage.displayNot = true;
   localStorage.frequency = 15;
+  localStorage.timeOut = true;
   localStorage.isInitialized = true;
-  console.log("NO LOCAL STORAGE");
+  console.log("LOCAL STORAGE INITIALIZED");
 }
 
 

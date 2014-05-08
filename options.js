@@ -16,8 +16,17 @@ window.addEventListener('load', function() {
   // Initialize the option controls.
   if(localStorage.autoRefresh != undefined && localStorage.autoRefresh != null){
 	options.autoRefresh.checked = JSON.parse(localStorage.autoRefresh);
-  	options.timeOut.checked = JSON.parse(localStorage.timeOut);
+  }
+  
+  if(localStorage.timeOut != undefined && localStorage.timeOut != null){
+	options.timeOut.checked = JSON.parse(localStorage.timeOut);
+  }
+  
+  if(localStorage.frequency != undefined && localStorage.frequency != null){
 	options.frequency.value = localStorage.frequency;
+  }
+  
+  if(localStorage.displayNot != undefined && localStorage.displayNot != null){
 	options.displayNot.checked = JSON.parse(localStorage.displayNot);
   }
 
