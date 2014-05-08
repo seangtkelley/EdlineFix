@@ -34,6 +34,10 @@ window.addEventListener('load', function() {
 	options.startupNot.checked = JSON.parse(localStorage.startupNot);
   }
 
+  if(localStorage.handleErr != undefined && localStorage.handleErr != null){
+	options.handleErr.checked = JSON.parse(localStorage.handleErr);
+  }
+
   //if (!options.autoRefresh.checked) { ghost(true); }
 
   // Set the display activation and frequency.
@@ -61,5 +65,9 @@ window.addEventListener('load', function() {
   
   options.displayNot.onchange = function() {
     localStorage.displayNot = options.displayNot.checked;
+  };
+
+  options.handleErr.onchange = function() {
+    localStorage.handleErr = options.handleErr.checked;
   };
 });
