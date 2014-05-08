@@ -7,8 +7,8 @@
   field.
 */
 function ghost(isDeactivated) {
-  options.style.color = isDeactivated ? 'graytext' : 'black';
-                                              // The label color.
+  options.style.color = isDeactivated ? 'graytext' : 'black'; // The label color.
+  
   options.frequency.disabled = isDeactivated; // The control manipulability.
 }
 
@@ -16,18 +16,33 @@ window.addEventListener('load', function() {
   // Initialize the option controls.
   if(localStorage.autoRefresh != undefined && localStorage.autoRefresh != null){
 	options.autoRefresh.checked = JSON.parse(localStorage.autoRefresh);
+  	options.timeOut.checked = JSON.parse(localStorage.timeOut);
 	options.frequency.value = localStorage.frequency;
+	options.displayNot.checked = JSON.parse(localStorage.displayNot);
   }
 
-  if (!options.autoRefresh.checked) { ghost(true); }
+  //if (!options.autoRefresh.checked) { ghost(true); }
 
   // Set the display activation and frequency.
   options.autoRefresh.onchange = function() {
     localStorage.autoRefresh = options.autoRefresh.checked;
-    ghost(!options.autoRefresh.checked);
+	
+	options.timeOut.checked = false;
+	localStorage.timeOut = options.timeOut.checked;
+  };
+  
+  options.timeOut.onchange = function() {
+    localStorage.timeOut = options.timeOut.checked;
+	
+	options.autoRefresh.checked = false;
+	localStorage.autoRefresh = options.autoRefresh.checked;
   };
   
   options.frequency.onchange = function() {
     localStorage.frequency = options.frequency.value;
+  };
+  
+  options.displayNot.onchange = function() {
+    localStorage.displayNot = options.displayNot.checked;
   };
 });

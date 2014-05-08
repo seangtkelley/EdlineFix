@@ -22,30 +22,70 @@
     </h1>
     <h2>Options</h2>
     <form id="options">
-      <input type="checkbox" name="autoRefresh" checked="true">
-      If you're idle, auto-refresh edline page every 
-	  <select name="frequency">
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-        <option>6</option>
-        <option>7</option>
-        <option>8</option>
-        <option>9</option>
-        <option>10</option>
-		<option>11</option>
-		<option>12</option>
-		<option>13</option>
-		<option>14</option>
-		<option selected="selected">15</option>
-		<option>16</option>
-		<option>17</option>
-		<option>18</option>
-		<option>19</option>
-      </select>
-	  minutes.
+		<div id="autoRefreshContainer">
+			<input id="autoRefresh" type="checkbox" name="autoRefresh">
+			Auto-Refresh Edline Before Timeout
+			<br>
+			
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			- Every
+			<select name="frequency">
+				<option>1</option>
+				<option>2</option>
+				<option>3</option>
+				<option>4</option>
+				<option>5</option>
+				<option>6</option>
+				<option>7</option>
+				<option>8</option>
+				<option>9</option>
+				<option>10</option>
+				<option>11</option>
+				<option>12</option>
+				<option>13</option>
+				<option>14</option>
+				<option selected="selected">15</option>
+				<option>16</option>
+				<option>17</option>
+				<option>18</option>
+				<option>19</option>
+			</select>
+			minutes.
+			<br>
+			
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="displayNot" type="checkbox" name="displayNot" checked>
+			<label for="displayNot">Display Notification</label>
+		</div>
+		<br>
+		<div id="timeOutContainer">
+			<input id="timeOut" type="checkbox" name="timeOut">
+			Notify Before Timeout
+			
+			<!--Every
+			<select name="desiredTime">
+				<option>1</option>
+				<option>2</option>
+				<option>3</option>
+				<option>4</option>
+				<option>5</option>
+				<option>6</option>
+				<option>7</option>
+				<option>8</option>
+				<option>9</option>
+				<option>10</option>
+				<option>11</option>
+				<option>12</option>
+				<option>13</option>
+				<option>14</option>
+				<option selected="selected">15</option>
+				<option>16</option>
+				<option>17</option>
+				<option>18</option>
+				<option>19</option>
+			</select>
+			minutes.-->
+		</div>
     </form>
   </body>
 </html>

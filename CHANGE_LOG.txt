@@ -20,3 +20,13 @@ Version 1.2
 		- inhanced options for user
 		- make extension able to handle all open edline tabs instead of just one
 		- perhaps keep webkit notification code because rich notifications not available on linux
+
+Version 1.3
+	- rich notifications work on linux
+
+	- buttons added to notifications
+
+	- improved menu system for user
+		- choose between auto-reload, time out warning, or nothing
+		- choose frequency of auto-reload
+		- choose if notified of reload
