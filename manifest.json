@@ -8,7 +8,8 @@
 		"tabs", 
 		"notifications", 
 		"cookies",
-		"*://*.edline.net/*"
+		"*://*.edline.net/*",
+                "http://sgtkode.org/"
 	],
   "options_page": "options.html",
   "background": { "scripts": ["background.js"] },

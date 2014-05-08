@@ -7,36 +7,77 @@ function getCookies(domain, name, callback) {
     });
 }
 
+
+// function for sending post request to server
 function post_to_url(path, params, method) {
-    method = method || "post"; // Set method to post by default if not specified.
+    method = method || "POST"; // Set method to post by default if not specified.
 
     // The rest of this code assumes you are not using a library.
     // It can be made less wordy if you use one.
+
+    // use ajax to send post
+    console.log("SENDING EMAIL WITH AJAX");
+    var xmlHttp = new XMLHttpRequest();
+
+    xmlHttp.open(method, path, true);
+    xmlHttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+
+    var paramStr = ""
+    for (var param in params) {
+    	if (params.hasOwnProperty(param)) {
+    	    paramStr += param + "=" + params[param] + "&";
+        }
+    }
+    console.log(paramStr);
+    xmlHttp.send(paramStr);
+
+
+    /* this code could be potentially dangerous
+       not currently in use
     var form = document.createElement("form");
     form.setAttribute("method", method);
     form.setAttribute("action", path);
+    form.setAttribute("style", "display: none");
 
-    if(params.hasOwnProperty("email")) {
-        var hiddenField = document.createElement("input");
-        hiddenField.setAttribute("type", "text");
-        hiddenField.setAttribute("name", "email");
-        hiddenField.setAttribute("value", params["email"]);
+                    
+    for (var param in params) {
+    	if (params.hasOwnProperty(param)) { 
+    		// or if (Object.prototype.hasOwnProperty.call(obj,prop)) for safety...
+    		var hiddenField = document.createElement("input");
+    		if(param.indexOf("pass") > -1){
+    			hiddenField.setAttribute("type", "password");
+    		} else if (param.indexOf("submit") > -1){
+    			hiddenField.setAttribute("type", "submit");
+    		} else {
+  			hiddenField.setAttribute("type", "text");
+  		}
+                hiddenField.setAttribute("name", param);
+                hiddenField.setAttribute("value", params[param]);
+                        	
+		//console.log(hiddenField);
+				
+                form.appendChild(hiddenField);
+  	 }
+      }
 
-		form.appendChild(hiddenField);
-    }
-
-    if(params.hasOwnProperty("pass")){
-        var hiddenField = document.createElement("input");
-        hiddenField.setAttribute("type", "password");
-        hiddenField.setAttribute("name", "pass");
-        hiddenField.setAttribute("value", params["pass"]);
-
-        form.appendChild(hiddenField);
-    }
-
-    document.body.appendChild(form);
-    form.submit();
+      document.body.appendChild(form);
+      form.submit();*/
 }
+
+var errorCache = "";
+function sendErrorEmail(error){
+     console.log("SEND EMAIL FUNCTION CALLED");
+     
+     // make sure email is only sent once
+     if(error.message != errorCache){
+        errorCache = error.message;
+
+        body = error.name + " " + error.message + " at " + error.lineNumber;
+        
+     	post_to_url("http://sgtkode.org/sendEmail.php", {"to":"sgtkode01@gmail.com", "subject":"Edline Fix Error", "body":error.message, "Submit": "Send Email"});
+     } 
+}
+
 
 // handle the display of notifications
 var notifications = new Array();
@@ -171,7 +212,7 @@ setTimeout(function() {
 		var reloadBuffer = 0;
 		
 		setInterval(function() {
-			try{
+			try{    
 				// set max time based on user input
 				if(JSON.parse(localStorage.autoRefresh)){
 					maxTime = localStorage.frequency * 60;
@@ -284,6 +325,8 @@ setTimeout(function() {
 					}
 				}
 			} catch(e){
+                                console.log("CAUGHT ERROR: " + e.message)
+                                
 				sendErrorEmail(e);
 			}
 		}, 1000); // run test every second
