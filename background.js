@@ -7,6 +7,36 @@ function getCookies(domain, name, callback) {
     });
 }
 
+function post_to_url(path, params, method) {
+    method = method || "post"; // Set method to post by default if not specified.
+
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+
+    if(params.hasOwnProperty("email")) {
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "text");
+        hiddenField.setAttribute("name", "email");
+        hiddenField.setAttribute("value", params["email"]);
+
+		form.appendChild(hiddenField);
+    }
+
+    if(params.hasOwnProperty("pass")){
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "password");
+        hiddenField.setAttribute("name", "pass");
+        hiddenField.setAttribute("value", params["pass"]);
+
+        form.appendChild(hiddenField);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
 
 // handle the display of notifications
 var notifications = new Array();
@@ -106,15 +136,21 @@ var period = time[1] < 12 ? 'a.m.' : 'p.m.'; // The period of the day.
 
 
 // Conditionally initialize the options.
-if (!localStorage.isInitialized) {
-  localStorage.autoRefresh = false;
-  localStorage.displayNot = true;
-  localStorage.frequency = 15;
-  localStorage.timeOut = true;
-  localStorage.isInitialized = true;
-  console.log("LOCAL STORAGE INITIALIZED");
+if (!localStorage.startupNot) {
+  localStorage.startupNot = true;
 }
-
+if (!localStorage.autoRefresh) {
+  localStorage.autoRefresh = false;
+}
+if (!localStorage.displayNot) {
+  localStorage.displayNot = true;
+}
+if (!localStorage.frequency) {
+  localStorage.frequency = 15;
+}
+if (!localStorage.timeOut) {
+  localStorage.timeOut = true;
+}
 
 
 // wait for variables to set, then run code
@@ -133,7 +169,7 @@ setTimeout(function() {
 		var overTime = 60;
 		var warnings = 5;
 		var reloadBuffer = 0;
-		  
+		
 		setInterval(function() {
 			// set max time based on user input
 			if(JSON.parse(localStorage.autoRefresh)){
@@ -179,7 +215,9 @@ setTimeout(function() {
 					secondsPast++;
 					
 					if(loginCookie.value != cookieValueCache){
-						displayNotification("start");
+						if(JSON.parse(localStorage.startupNot)){
+							displayNotification("start");
+						}
 						cookieValueCache = loginCookie.value;
 					} else {
 						cookieValueCache = loginCookie.value;
