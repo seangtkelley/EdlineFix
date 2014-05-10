@@ -12,7 +12,9 @@
                 "http://sgtkode.org/"
 	],
   "options_page": "options.html",
-  "background": { "scripts": ["background.js"] },
+  "background": {
+    "scripts": ["background.js", "functions.js"]
+  },
   "browser_action": {
 		"default_title": "Edline Tabs",
 		"default_icon": "EdlineExtensionIcon-16.png",

@@ -1,174 +1,10 @@
-// better function for getting cookies
-function getCookies(domain, name, callback) {
-    chrome.cookies.get({"url": domain, "name": name}, function(cookie) {
-        if(callback) {
-            callback(cookie);
-        }
-    });
-}
-
-
-// function for sending post request to server
-function post_to_url(path, params, method) {
-    method = method || "POST"; // Set method to post by default if not specified.
-
-    // The rest of this code assumes you are not using a library.
-    // It can be made less wordy if you use one.
-
-    // use ajax to send post
-    console.log("SENDING EMAIL WITH AJAX");
-    var xmlHttp = new XMLHttpRequest();
-
-    xmlHttp.open(method, path, true);
-    xmlHttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-
-    var paramStr = ""
-    for (var param in params) {
-    	if (params.hasOwnProperty(param)) {
-    	    paramStr += param + "=" + params[param] + "&";
-        }
-    }
-    console.log(paramStr);
-    xmlHttp.send(paramStr);
-
-
-    /* this code could be potentially dangerous
-       not currently in use
-    var form = document.createElement("form");
-    form.setAttribute("method", method);
-    form.setAttribute("action", path);
-    form.setAttribute("style", "display: none");
-
-                    
-    for (var param in params) {
-    	if (params.hasOwnProperty(param)) { 
-    		// or if (Object.prototype.hasOwnProperty.call(obj,prop)) for safety...
-    		var hiddenField = document.createElement("input");
-    		if(param.indexOf("pass") > -1){
-    			hiddenField.setAttribute("type", "password");
-    		} else if (param.indexOf("submit") > -1){
-    			hiddenField.setAttribute("type", "submit");
-    		} else {
-  			hiddenField.setAttribute("type", "text");
-  		}
-                hiddenField.setAttribute("name", param);
-                hiddenField.setAttribute("value", params[param]);
-                        	
-		//console.log(hiddenField);
-				
-                form.appendChild(hiddenField);
-  	 }
-      }
-
-      document.body.appendChild(form);
-      form.submit();*/
-}
-
-var errorCache = "";
-function sendErrorEmail(error){
-     console.log("SEND EMAIL FUNCTION CALLED");
-     
-     // make sure email is only sent once
-     if(error.message != errorCache){
-        errorCache = error.message;
-
-        body = error.name + " " + error.message + " at " + error.lineNumber;
-        
-     	post_to_url("http://sgtkode.org/sendEmail.php", {"to":"sgtkode01@gmail.com", "subject":"Edline Fix Error", "body":error.message, "Submit": "Send Email"});
-     } 
-}
-
-
-// handle the display of notifications
-var notifications = new Array();
-
-/* rich notifications (windows, mac, ubuntu) */
-// get permission level of rich notifications
-var permLevel = "";
-chrome.notifications.getPermissionLevel(function (level){
-	permLevel = level;
-});
-
-function displayNotification(type, timeLeft){
-	timeLeft = (typeof timeLeft === "undefined") ? 0 : timeLeft;
-	if(type == "reload"){
-		var message = "Edline has been refreshed to save your session. You can change this on the option page.";
-		var options = {"type": "basic", "iconUrl": "128.png", "title": "Edline Session", "message": message, "buttons": [{"title": "Options"}]};
-		chrome.notifications.create("", options, function (notificationId){
-			notifications.push(notificationId);
-		});
-	} else if(type == "time") {
-		var message = "";
-		if(timeLeft == 0){
-			message = "Edline has logged you out.";
-		} else {
-			message = "Edline is going to log you off in: " + timeLeft + " minutes";
-		}
-		var options = {"type": "basic", "iconUrl": "128.png", "title": "Edline Session", "message": message, "buttons": [{"title": "Options"}, {"title": "Reload Edline"}]};
-		chrome.notifications.create("", options, function (notificationId){
-			notifications.push(notificationId);
-		});
-	} else if(type == "start") {
-		var message = "Edline Fix is now protecting your session. You can change this on the option page.";;
-		var options = {"type": "basic", "iconUrl": "128.png", "title": "Edline Session", "message": message, "buttons": [{"title": "Options"}]};
-		chrome.notifications.create("", options, function (notificationId){
-			notifications.push(notificationId);
-		});
-	}
-}
-
-function clearEdlineNotifications(){
-	if (typeof notifications !== 'undefined' && notifications.length > 0) {
-		for (var i = 0; i < notifications.length; i++) {
-			chrome.notifications.clear(notifications[i], function (wasCleared){
-				if(wasCleared){
-					console.log("NOTIFICATION " + notifications[i] + " CLEARED");
-				} else {
-					console.log("NOTIFICATION " + notifications[i] + " NOT CLEARED");
-				}
-			});
-		}
-	}
-}
-
-function clearAllNotifications(){
-	var allNotificationIDs = null;
-	chrome.notifications.getAll(function (IDS){
-		if(IDS !== undefined && IDS !== null){
-			allNotificationIDs = IDS;
-		}
-	});
-						
-	if(allNotificationIDs !== null){
-		for (var i = 0; i < allNotificationIDs.length; i++) {
-			chrome.notifications.clear(allNotificationIDs[i], function (wasCleared){
-				if(wasCleared){
-					console.log("NOTIFICATION " + notifications[i] + " CLEARED");
-				} else {
-					console.log("NOTIFICATION " + notifications[i] + " NOT CLEARED");
-				}
-			});
-		}
-	}
-}
-
-// notification button click listeners
-chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex){
-	if(buttonIndex == 0){
-		var url = "chrome-extension://" + chrome.runtime.id + "/options.html";
-		chrome.tabs.create({"url": url, "active": true});
-	} else {
-		var tempEdlineTab = null;
-		chrome.tabs.query({"url": "*://*.edline.net/*"}, function(queryTabs) {
-			if(queryTabs !== undefined){
-				tempEdlineTab = queryTabs[0];
-			}
-		});
-		
-		setTimeout(function() { chrome.tabs.reload(tempEdlineTab.id); }, 300);
-	}
-});
-
+/*
+    File: background.js
+    Purpose: Main engine for Edline Fix
+    Comments: All extra functions stored in functions.js to
+	      reduce clutter and speed up file loading
+    Authors: Sean Kelley (sgtkode)
+*/
 
 // some time variables just in case
 var time = /(..)(:..)/.exec(new Date());     // The prettyprinted time.
@@ -215,7 +51,7 @@ setTimeout(function() {
 		var reloadBuffer = 0;
 		
 		setInterval(function() {
-			try{    
+			try{
 				// set max time based on user input
 				if(JSON.parse(localStorage.autoRefresh)){
 					maxTime = localStorage.frequency * 60;
@@ -328,7 +164,7 @@ setTimeout(function() {
 					}
 				}
 			} catch(e){
-                                console.log("CAUGHT ERROR: " + e.message)
+                                console.log("CAUGHT ERROR: " + e.stack)
                                 
 				if(JSON.parse(localStorage.handleErr)){
 					sendErrorEmail(e);

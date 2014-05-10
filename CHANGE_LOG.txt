@@ -56,5 +56,19 @@ Version 1.4
 	- fixed incorrect local storage initialization
 
 	- added error handling
-		- extension will automatically send email when error is thrown
-		- user can decide if they want to send errors
+		- extension will automatically send email to sgtkode01@gmail.com when error is thrown
+		- user can decide if they want to send error reports
+	
+	- seperated functions into other file to reduce clutter and improve load times
+	
+	- began implementation of git
+		- src: https://github.com/sgtkode/EdlineFix
+		- two branches: Stable and Exp
+			- Stable: current release for public
+			- Exp: version in development
+		- README file added
+		
+	
+	- first public release with source on github
+	
+	- posted link to extension on facebook
