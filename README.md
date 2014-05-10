@@ -5,8 +5,7 @@ In its current state, Edline will automatically log you out after 20 minutes of 
 This extension allows you to choose options of early warning and prevention against log out.
 
 
-### Installation
-==================
+###Installation
 - Instructions for stable install:
 
     + You can follow this link: http://adf.ly/ipHO2 for the current stable version on the webstore
@@ -36,7 +35,6 @@ This extension allows you to choose options of early warning and prevention agai
         5. navigate to and select folder containing clone repository
 
 
-### More Information
-=====================
+###More Information
 - All changes are described in the change log file
 - Contact me at sgtkode01@gmail.com
