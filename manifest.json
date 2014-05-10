@@ -20,5 +20,5 @@
 		"default_icon": "EdlineExtensionIcon-16.png",
 		"default_popup": "popup.html"
 	},
-  "manifest_version": 8
+  "manifest_version": 2
 }
