@@ -29,10 +29,22 @@ window.addEventListener('load', function() {
   if(localStorage.displayNot != undefined && localStorage.displayNot != null){
 	options.displayNot.checked = JSON.parse(localStorage.displayNot);
   }
+  
+  if(localStorage.startupNot != undefined && localStorage.startupNot != null){
+	options.startupNot.checked = JSON.parse(localStorage.startupNot);
+  }
+
+  if(localStorage.handleErr != undefined && localStorage.handleErr != null){
+	options.handleErr.checked = JSON.parse(localStorage.handleErr);
+  }
 
   //if (!options.autoRefresh.checked) { ghost(true); }
 
   // Set the display activation and frequency.
+  options.startupNot.onchange = function() {
+    localStorage.startupNot = options.startupNot.checked;
+  };
+  
   options.autoRefresh.onchange = function() {
     localStorage.autoRefresh = options.autoRefresh.checked;
 	
@@ -53,5 +65,9 @@ window.addEventListener('load', function() {
   
   options.displayNot.onchange = function() {
     localStorage.displayNot = options.displayNot.checked;
+  };
+
+  options.handleErr.onchange = function() {
+    localStorage.handleErr = options.handleErr.checked;
   };
 });

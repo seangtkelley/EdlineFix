@@ -1,13 +1,3 @@
-<!--
-  An option page for configuring notifications.
-
-  Copyright 2010 the Chromium Authors
-
-  Use of this source code is governed by a BSD-style license that can be found
-  in the "LICENSE" file.
-
-  Brian Kennish <bkennish@chromium.org>
--->
 <!doctype html>
 <html>
   <head>
@@ -22,6 +12,10 @@
     </h1>
     <h2>Options</h2>
     <form id="options">
+		<div id="startupContainer">
+			<input id="startupNot" type="checkbox" name="startupNot">
+			Display notification when Edline Fix begins to protect your session
+		</div>
 		<div id="autoRefreshContainer">
 			<input id="autoRefresh" type="checkbox" name="autoRefresh">
 			Auto-Refresh Edline Before Timeout
@@ -85,6 +79,10 @@
 				<option>19</option>
 			</select>
 			minutes.-->
+		</div>
+		<div id="errorContainer">
+			<input id="handleErr" type="checkbox" name="handleErr">
+			Automatically send error reports to sgtkode
 		</div>
     </form>
   </body>
