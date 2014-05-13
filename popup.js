@@ -44,5 +44,5 @@ setTimeout(function() {
 	document.getElementById('options').onclick = optionsClick;
 	
 	
-}, 1000);
+}, 500);
 
