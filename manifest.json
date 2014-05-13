@@ -1,6 +1,6 @@
 {
   "name": "Edline Fix",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description":
     "Alert you when edline is going to log you out.",
   "icons": {"16": "EdlineExtensionIcon-16.png", "48": "EdlineExtensionIcon-48.png", "128": "EdlineExtensionIcon-128.png"},

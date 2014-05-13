@@ -72,3 +72,6 @@ Version 1.4
 	- first public release with source on github
 	
 	- posted link to extension on facebook
+
+	1.4.1
+	- added options button to popup.html

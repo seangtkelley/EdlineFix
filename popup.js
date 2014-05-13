@@ -31,18 +31,18 @@ function reloadClick(){
 	});
 }
 
+function optionsClick(){
+	// reload all edline tabs
+	var url = "chrome-extension://" + chrome.runtime.id + "/options.html";
+	chrome.tabs.create({"url": url, "active": true});
+}
+
 setTimeout(function() {
 
-	document.getElementById('reload').onclick = reloadClick;/*function (){
-		// reload all edline tabs
-		chrome.tabs.query({"url": "*://*.edline.net/*"}, function(queryTabs) {
-			if(queryTabs !== undefined){
-				for (var i = 0; i < queryTabs.length; i++) {
-					chrome.tabs.reload(queryTabs[i].id);
-				}
-			}
-		});
-	};*/
+	document.getElementById('reload').onclick = reloadClick;
 	
-}, 1000);
+	document.getElementById('options').onclick = optionsClick;
+	
+	
+}, 500);
 
