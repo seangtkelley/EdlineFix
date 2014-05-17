@@ -1,11 +1,12 @@
 {
   "name": "Edline Fix",
-  "version": "1.4.1",
+  "version": "2.0.0",
   "description":
     "Alert you when edline is going to log you out.",
   "icons": {"16": "EdlineExtensionIcon-16.png", "48": "EdlineExtensionIcon-48.png", "128": "EdlineExtensionIcon-128.png"},
   "permissions": [
-		"tabs", 
+		"tabs",
+		"activeTab",
 		"notifications", 
 		"cookies",
 		"*://*.edline.net/*",
@@ -13,8 +14,14 @@
 	],
   "options_page": "options.html",
   "background": {
-    "scripts": ["background.js", "functions.js"]
+    "scripts": ["background.js", "functions.js", "EdlineTabClass.js"]
   },
+  "content_scripts": [
+    {
+      "matches": ["*://*.edline.net/*"],
+      "js": ["jquery-2.1.1.min.js"]
+    }
+  ],
   "browser_action": {
 		"default_title": "Edline Tabs",
 		"default_icon": "EdlineExtensionIcon-16.png",

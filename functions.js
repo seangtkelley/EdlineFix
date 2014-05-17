@@ -1,7 +1,7 @@
 /*
     File: functions.js
     Purpose: Holds all extra functions for background.js
-    Comments: 
+    Comments: N/A
     Authors: Sean Kelley (sgtkode)
 */
 
