@@ -35,7 +35,7 @@ if (!localStorage.handleErr) {
 // initially find all tabs
 var edlineTabs = false;
 setTimeout(function (){
-    EdlineTab.getAllTabs(function(tabs){
+    EdlineTab.getAllTabsInit(function(tabs){
       edlineTabs = tabs;
     });  
 }, 500);
@@ -53,6 +53,7 @@ setTimeout(function() {
 	console.log(edlineTabs);
 	if (edlineTabs != false) {
 	  for (var i = 0; i < edlineTabs.length; i++) {
+	    console.log("Index: " + i);
 	    // set max time based on user input
 	    if(JSON.parse(localStorage.autoRefresh)){
 	      maxTime = localStorage.frequency * 60;
@@ -147,6 +148,14 @@ setTimeout(function() {
 	      }
 	    }
 	  }
+	  
+	  EdlineTab.updateTabs(function(tabs){
+	    edlineTabs = tabs;
+	  });
+	} else {
+	  EdlineTab.getAllTabsInit(function(tabs){
+	    edlineTabs = tabs;
+	  });
 	}
       } catch(e){
 	console.log("CAUGHT ERROR: " + e.stack)

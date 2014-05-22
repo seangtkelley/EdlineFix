@@ -5,10 +5,14 @@
     Authors: Sean Kelley (sgtkode)
 */
 
-if($("#logout").children().html().indexOf("OUT") != -1){
-    console.log("TRUE");
-    chrome.runtime.sendMessage(chrome.runtime.id, "LOGIN TRUE");
-} else if ($("#logout").children().html().indexOf("IN") != -1) {
-    console.log("FALSE");
-    chrome.runtime.sendMessage(chrome.runtime.id, "LOGIN TRUE");
+if ($("#logout").children().html() !== undefined) {
+    if($("#logout").children().html().indexOf("OUT") != -1){
+        console.log("TRUE");
+        chrome.runtime.sendMessage(chrome.runtime.id, "LOGIN TRUE");
+    } else if ($("#logout").children().html().indexOf("IN") != -1) {
+        console.log("FALSE");
+        chrome.runtime.sendMessage(chrome.runtime.id, "LOGIN FALSE");
+    }
+} else {
+    chrome.runtime.sendMessage(chrome.runtime.id, "LOGIN FALSE");
 }
