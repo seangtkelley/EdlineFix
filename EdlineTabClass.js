@@ -19,6 +19,7 @@ function EdlineTab(tab) {
     this.overTime = 60;
     this.urlCache = tab.url;
     this.loggedIn = false;
+    this.exist = true;
     
 }
 
@@ -26,46 +27,50 @@ function EdlineTab(tab) {
 EdlineTab.prototype.refresh = function (){
         console.log("Edline Class: edline tab refresh called");
         
-        if (this.exists()) {
-            chrome.tabs.query({"windowId": this.tabObject.id}, function(queryTabs) {
-                if(queryTabs != undefined){
-                    this.tabObject = queryTabs[0];
+        chrome.tabs.query({"url": "*://*.edline.net/*"}, function(queryTabs) {
+            if(typeof queryTabs[0] === 'undefined' && queryTabs[0] === null){
+                for (var j = 0; j < queryTabs.length; j++) {
+                    if (queryTabs[j].id == this.tabObject.id) {
+                        this.tabObject = queryTabs[j];
+                    }
                 }
-            });
-            
-            this.checkLogIn();
-        }
+            }
+        });
+      
+        this.checkLogIn();
     };
 
 // find if tab still exists
-EdlineTab.prototype.exists = function (){
+EdlineTab.prototype.exists = function (/*callback*/){
         console.log("Edline Class: edline tab exists called");
         
-        chrome.tabs.query({"windowId": this.tabObject.id}, function(queryTabs) {
-	    if(queryTabs != undefined){
-		this.tabObject = queryTabs[0];
-            } else {
-                this.tabObject = null;
+        /*chrome.tabs.query({"url": "*://*.edline.net/*"}, function(queryTabs) {
+            if(typeof queryTabs[0] === 'undefined' && queryTabs[0] === null){
+                var exists = false;
+                for (var j = 0; j < queryTabs.length; j++) {
+                    if (queryTabs[j].id == this.tabObject.id) {
+                        exists = true;
+                        console.log("IT EXISTS");
+                    }
+                }
+                
+                if (exists) {
+                    callback(true);
+                } else {
+                    callback(false);
+                }
             }
-	});
+	});*/
         
-        if (this.tabObject == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return this.exist;
+        
     };
 
 // find if tab is on edline
 EdlineTab.prototype.isOnEdline = function (){
         console.log("Edline Class: edline tab is on edline called");
-        
-        if (this.exists()) {
-            if (this.tabObject.url.indexOf("edline") != -1) {
-                return true;
-            } else {
-                return false;
-            }
+        if (this.tabObject.url.indexOf("edline") != -1) {
+            return true;
         } else {
             return false;
         }
@@ -88,6 +93,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendMessage){
                 }
         });
 
+// check the login status of a tab
 EdlineTab.prototype.checkLogIn = function (){
         chrome.tabs.executeScript(this.tabObject.id, {
             file: "injectScript.js"
@@ -96,6 +102,7 @@ EdlineTab.prototype.checkLogIn = function (){
         console.log("Edline Class: Login checked");
     };
     
+// return if the tab is logged
 EdlineTab.prototype.isLoggedIn = function (){
         
         console.log("Edline Class: Login returned");
@@ -131,32 +138,38 @@ EdlineTab.getAllTabsInit = function (callback){
         } else {
             callback(false);
         }
-    }, 300);
+    }, 250);
     
     console.log("Edline Class: Get Tabs Init");
 };
 
-EdlineTab.updateTabs = function (callback){
-    // find tab for edline
-    var edlineTabs = new Array();
-    var tabs = null;
-    chrome.tabs.query({"url": "*://*.edline.net/*"}, function(queryTabs) {
-	if(queryTabs != undefined){
-	    tabs = queryTabs;
-	}
-    });
+// update edlineTabs array
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab){
     
-    setTimeout(function() {
-        if (tabs != null){
-            for (var i = 0; i < tabs.length; i++) {
-                edlineTabs[i] = new EdlineTab(tabs[i]);
+    // find if array already has tab
+    var isInArray = false;
+    if (tab.url.indexOf("edline") != -1) {
+        for (var i = 0; i < edlineTabs.length; i++) {
+            if (tabId == edlineTabs[i].tabObject.id) {
+                isInArray = true;
+                
+                edlineTabs[i].tabObject = tab;
             }
-            
-            callback(edlineTabs);
-        } else {
-            callback(false);
         }
-    }, 300);
+        
+        // if array doesn't have tab, add it
+        if (isInArray == false) {
+            edlineTabs.push(new EdlineTab(tab));
+        }
+    }
     
     console.log("Edline Class: Tabs Updated");
-};
+});
+
+chrome.tabs.onRemoved.addListener(function (tabId, removeInfo){
+    for (var i = 0; i < edlineTabs.length; i++) {
+        if (tabId == edlineTabs[i].tabObject.id) {
+                edlineTabs[i].exist = false;
+            }
+    }
+});
