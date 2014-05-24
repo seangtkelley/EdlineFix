@@ -14,7 +14,7 @@
 	],
   "options_page": "options.html",
   "background": {
-    "scripts": ["background.js", "functions.js", "EdlineTabClass.js"]
+    "scripts": ["background.js", "functions.js", "EdlineTabClass.js", "jquery-2.1.1.min.js"]
   },
   "content_scripts": [
     {

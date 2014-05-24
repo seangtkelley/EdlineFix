@@ -87,4 +87,6 @@ Version 2.0
 	
 	- added EdlineTab class
 		- uses injection script (injectScript.js) to determine log in status of tab
-		- 
+		- handles tab specific variables (ex. secondsPast)
+		- uses tab update and remove listeners to handle status of tab
+		
