@@ -90,3 +90,11 @@ Version 2.0
 		- handles tab specific variables (ex. secondsPast)
 		- uses tab update and remove listeners to handle status of tab
 		
+	2.0.1
+	- deleted timeout for loop
+	
+	2.0.2
+	- fixed notifications popping up everytime user reloads page
+	
+	2.0.3
+	- fixed use of wrong warning variable on line 141 in background.js (first error fixed from email) 

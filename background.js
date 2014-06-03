@@ -57,10 +57,8 @@ setTimeout(function() {
 	    
 	    // find if tab exists
 	    var tabExists = edlineTabs[i].exists();
-	    /*edlineTabs[i].exists(function (bool){
-	      tabExists = bool;
-	    });*/
 	    
+	    // find if tab is on edline
 	    var isOnEdline = edlineTabs[i].isOnEdline();
 	    
 	    // set max time based on user input
@@ -69,101 +67,103 @@ setTimeout(function() {
 	    } else {
 	      maxTime = 15 * 60;
 	    }
-	    
-	    setTimeout(function (){
+	     
+	    // make sure edline tab exists
+	    if(tabExists == false || isOnEdline == false){
+	      edlineTabs.splice(i, 1);
 	      
-	      i = i - 1;
+	      console.log("TAB DOESN'T EXIST");
 	      
-	      // make sure edline tab exists
-	      if(tabExists == false || isOnEdline == false){
-		edlineTabs.splice(i, 1);
+	    } else if(edlineTabs[i].isLoggedIn() == false){
+	      // if user not logged in, ignore rest of code
+	      edlineTabs[i].secondsPast = 0;
+	      edlineTabs[i].urlCache = "";
+	      
+	      // refresh tab details
+	      edlineTabs[i].refresh();
+	      
+	      console.log("NOT LOGGED IN");
+	    } else if(edlineTabs[i].isLoggedIn()){
+	      // refresh tab details
+	      edlineTabs[i].refresh();
+	      
+	      // if user logged on, check timer
+	      if(edlineTabs[i].secondsPast == 0){
+		// if no seconds have past, set all initial values
+		edlineTabs[i].urlCache = edlineTabs[i].tabObject.url;
+		edlineTabs[i].secondsPast++;
 		
-		console.log("TAB DOESN'T EXIST");
-		
-	      } else if(edlineTabs[i].isLoggedIn() == false){
-		// if user not logged in, ignore rest of code
-		edlineTabs[i].secondsPast = 0;
-		edlineTabs[i].urlCache = "";
-		
-		// refresh tab details
-		edlineTabs[i].refresh();
-		
-		console.log("NOT LOGGED IN");
-	      } else if(edlineTabs[i].isLoggedIn()){
-		// refresh tab details
-		edlineTabs[i].refresh();
-		
-		// if user logged on, check timer
-		if(edlineTabs[i].secondsPast == 0){
-		  // if no seconds have past, set all initial values
-		  edlineTabs[i].urlCache = edlineTabs[i].tabObject.url;
-		  edlineTabs[i].secondsPast++;
-		  
-		  if(JSON.parse(localStorage.startupNot)){
+		if(JSON.parse(localStorage.startupNot)){
+		  if (edlineTabs[i].wasLoggedIn == false) {
 		    displayNotification("start");
-		  }
-		  
-		  console.log("START");
-		} else if (edlineTabs[i].secondsPast > 0){
-		  // if seconds have past, run checks on data
-		  if(edlineTabs[i].tabObject.url != edlineTabs[i].urlCache){
-		    // if the page is not the same, reset timer
-		    edlineTabs[i].secondsPast = 0;
-		    edlineTabs[i].urlCache = edlineTabs[i].tabObject.url;
-		    edlineTabs[i].overTime = 60;
-		    edlineTabs[i].warnings = 5;
-		    
-		    console.log("DIFFERENT PAGE RESET");
-		  } else if (edlineTabs[i].tabObject.status == "loading"){
-		    // if page is loading(new request by user), reset timer
-		    edlineTabs[i].secondsPast = 0;
-		    edlineTabs[i].urlCache = edlineTabs[i].tabObject.url;
-		    edlineTabs[i].overTime = 60;
-		    edlineTabs[i].warnings = 5;
-		    
-		    console.log("LOADING PAGE RESET");
 		  } else {
-		    // user is still idle
-		    if(edlineTabs[i].secondsPast > maxTime){
-		      // exceeded max time, alert user or refresh automatically
-		      if(JSON.parse(localStorage.autoRefresh) /*&& reloadBuffer != 1*/){
-			/* rich notification code */
-			// check if they want to display notifications
-			if(JSON.parse(localStorage.displayNot)){
-			  displayNotification("reload");
-			}
-			
-			//reloadBuffer = 1;
-			edlineTabs[i].reload();
-		      } else if(edlineTabs[i].overTime >= 60 && edlineTabs[i].warnings >= 0 && reloadBuffer != 1 && JSON.parse(localStorage.timeOut)){
-			/* rich notification code */
-			displayNotification("time", warnings);
-			
-			edlineTabs[i].overTime = 0;
-			edlineTabs[i].warnings -= 1;
-		      } else if(edlineTabs[i].warnings == -1 && edlineTabs[i].overTime == 5){
-			chrome.cookies.remove({"url": "http://www.edline.net", "name": "XT"});
-			edlineTabs[i].reload();
-			
-			console.log("USER TIMED OUT");
-			console.log("LOG IN COOKIE CLEARED");
+		    edlineTabs[i].wasLoggedIn = true;
+		  }
+		}
+		
+		console.log("START");
+	      } else if (edlineTabs[i].secondsPast > 0){
+		// set the wasLoggedIn variable
+		edlineTabs[i].wasLoggedIn = true;
+		
+		// if seconds have past, run checks on data
+		if(edlineTabs[i].tabObject.url != edlineTabs[i].urlCache){
+		  // if the page is not the same, reset timer
+		  edlineTabs[i].secondsPast = 0;
+		  edlineTabs[i].urlCache = edlineTabs[i].tabObject.url;
+		  edlineTabs[i].overTime = 60;
+		  edlineTabs[i].warnings = 5;
+		  
+		  console.log("DIFFERENT PAGE RESET");
+		} else if (edlineTabs[i].tabObject.status == "loading"){
+		  // if page is loading(new request by user), reset timer
+		  edlineTabs[i].secondsPast = 0;
+		  edlineTabs[i].urlCache = edlineTabs[i].tabObject.url;
+		  edlineTabs[i].overTime = 60;
+		  edlineTabs[i].warnings = 5;
+		  
+		  console.log("LOADING PAGE RESET");
+		} else {
+		  // user is still idle
+		  if(edlineTabs[i].secondsPast > maxTime){
+		    // exceeded max time, alert user or refresh automatically
+		    if(JSON.parse(localStorage.autoRefresh) /*&& reloadBuffer != 1*/){
+		      /* rich notification code */
+		      // check if they want to display notifications
+		      if(JSON.parse(localStorage.displayNot)){
+			displayNotification("reload");
 		      }
-		      // increase over time
-		      edlineTabs[i].overTime++;
 		      
-		      console.log("IDLE: NO TIME");
-		    } else {
-		      // user still has time, continue iterate
-		      edlineTabs[i].urlCache = edlineTabs[i].tabObject.url;
-		      edlineTabs[i].secondsPast++;
+		      //reloadBuffer = 1;
+		      edlineTabs[i].reload();
+		    } else if(edlineTabs[i].overTime >= 60 && edlineTabs[i].warnings >= 0 && reloadBuffer != 1 && JSON.parse(localStorage.timeOut)){
+		      /* rich notification code */
+		      displayNotification("time", edlineTabs[i].warnings);
 		      
-		      console.log("IDLE: WITH TIME");
-		      console.log("SECONDS PAST: " + edlineTabs[i].secondsPast.toString());
+		      edlineTabs[i].overTime = 0;
+		      edlineTabs[i].warnings -= 1;
+		    } else if(edlineTabs[i].warnings == -1 && edlineTabs[i].overTime == 5){
+		      chrome.cookies.remove({"url": "http://www.edline.net", "name": "XT"});
+		      edlineTabs[i].reload();
+		      
+		      console.log("USER TIMED OUT");
+		      console.log("LOG IN COOKIE CLEARED");
 		    }
+		    // increase over time
+		    edlineTabs[i].overTime++;
+		    
+		    console.log("IDLE: NO TIME");
+		  } else {
+		    // user still has time, continue iterate
+		    edlineTabs[i].urlCache = edlineTabs[i].tabObject.url;
+		    edlineTabs[i].secondsPast++;
+		    
+		    console.log("IDLE: WITH TIME");
+		    console.log("SECONDS PAST: " + edlineTabs[i].secondsPast.toString());
 		  }
 		}
 	      }
-	    }, 250); // end timeout function
+	    }
 	  }
 	  
 	  /*EdlineTab.updateTabs(edlineTabs, function(tabs){
