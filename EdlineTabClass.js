@@ -20,6 +20,7 @@ function EdlineTab(tab) {
     this.urlCache = tab.url;
     this.loggedIn = false;
     this.exist = true;
+    this.wasLoggedIn = false;
     
 }
 
@@ -88,6 +89,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendMessage){
                             console.log("Edline Class: Message Listener Called");
                             console.log("Edline Class: Login False");
                             edlineTabs[i].loggedIn = false;
+			    edlineTabs[i].wasLoggedIn = false;
                         }
                     }
                 }
