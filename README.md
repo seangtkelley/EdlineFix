@@ -37,4 +37,4 @@ This extension allows you to choose options of early warning and prevention agai
 
 ###More Information
 - All changes are described in the change log file
-- Contact me at sgtkode01@gmail.com
+- Contact me at seangtkelley@gmail.com
